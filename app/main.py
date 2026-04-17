@@ -33,8 +33,11 @@ def root(request: Request):
 
 @app.post("/analyze", response_class=HTMLResponse)
 def analyze(request: Request, code: str = Form(...), db: Session = Depends(get_db)):
-    # 1. Write user code to a temporary file
-    with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w", encoding="utf-8") as tf:
+    # 1. Write user code to a temporary file, normalizing line endings
+    code = code.replace('\r\n', '\n').replace('\r', '\n')
+    if not code.endswith('\n'):
+        code += '\n'
+    with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w", encoding="utf-8", newline='') as tf:
         tf.write(code)
         temp_path = tf.name
 

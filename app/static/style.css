@@ -1,5 +1,37 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
+:root {
+    --bg-main: #000000;
+    --bg-sidebar: #0a0a0a;
+    --bg-card: #111111;
+    --bg-input: #0a0a0a;
+    --bg-hover: #1a1a1a;
+    --text-primary: #ffffff;
+    --text-secondary: #888888;
+    --text-meta: #555555;
+    --border-color: #222222;
+    --border-focus: #666666;
+    --dot-color: #1a1a1a;
+    --btn-primary-bg: #ffffff;
+    --btn-primary-text: #000000;
+}
+
+[data-theme="light"] {
+    --bg-main: #fafafa;
+    --bg-sidebar: #ffffff;
+    --bg-card: #ffffff;
+    --bg-input: #ffffff;
+    --bg-hover: #f0f0f0;
+    --text-primary: #111111;
+    --text-secondary: #666666;
+    --text-meta: #888888;
+    --border-color: #eaeaea;
+    --border-focus: #aaaaaa;
+    --dot-color: #e5e5e5;
+    --btn-primary-bg: #111111;
+    --btn-primary-text: #ffffff;
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -8,10 +40,13 @@
 
 body {
     font-family: 'Inter', sans-serif;
-    background-color: #000000;
-    color: #ffffff;
+    background-color: var(--bg-main);
+    color: var(--text-primary);
     display: flex;
     min-height: 100vh;
+    transition: background-color 0.4s ease, color 0.4s ease;
+    background-image: radial-gradient(circle, var(--dot-color) 1px, transparent 1px);
+    background-size: 24px 24px;
 }
 
 a {
@@ -22,36 +57,38 @@ a {
 /* Layout */
 .sidebar {
     width: 240px;
-    background-color: #0a0a0a;
+    background-color: var(--bg-sidebar);
     position: fixed;
     height: 100vh;
     left: 0;
     top: 0;
     padding: 20px 10px;
-    border-right: 1px solid #222;
+    border-right: 1px solid var(--border-color);
+    transition: background-color 0.4s ease, border-color 0.4s ease;
+    z-index: 10;
 }
 
 .main-content {
     margin-left: 240px;
     padding: 40px;
     flex: 1;
-    background-color: #000000;
 }
 
 /* Sidebar Nav */
 .logo {
     font-weight: 600;
-    color: #ffffff;
+    color: var(--text-primary);
     font-size: 15px;
     padding: 10px;
     margin-bottom: 20px;
     display: flex;
     align-items: center;
     gap: 8px;
+    transition: color 0.4s ease;
 }
 
 .nav-link {
-    color: #888888;
+    color: var(--text-secondary);
     display: flex;
     align-items: center;
     gap: 8px;
@@ -59,12 +96,13 @@ a {
     border-radius: 6px;
     margin-bottom: 4px;
     font-size: 14px;
-    transition: background-color 0.1s, color 0.1s;
+    transition: background-color 0.2s, color 0.2s;
+    cursor: pointer;
 }
 
 .nav-link:hover, .nav-link.active {
-    color: #ffffff;
-    background-color: #1a1a1a;
+    color: var(--text-primary);
+    background-color: var(--bg-hover);
 }
 
 .nav-link svg {
@@ -92,44 +130,49 @@ h2 {
 }
 
 .text-secondary {
-    color: #888888;
+    color: var(--text-secondary);
     font-size: 14px;
+    transition: color 0.4s ease;
 }
 
 .text-meta {
-    color: #555555;
+    color: var(--text-meta);
     font-size: 12px;
+    transition: color 0.4s ease;
 }
 
 /* Form Elements */
 label {
     display: block;
     margin-bottom: 8px;
-    color: #888888;
+    color: var(--text-secondary);
     font-size: 14px;
+    transition: color 0.4s ease;
 }
 
 .input-field {
     width: 100%;
-    background-color: #0a0a0a;
-    border: 1px solid #333333;
-    color: #ffffff;
+    background-color: var(--bg-input);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
     border-radius: 6px;
     padding: 10px 14px;
     font-family: inherit;
     font-size: 14px;
     outline: none;
-    transition: border-color 0.1s;
+    transition: border-color 0.3s ease, background-color 0.4s ease, color 0.4s ease;
 }
 
 .input-field:focus {
-    border-color: #666666;
+    border-color: var(--border-focus);
 }
 
-.input-code {
-    font-family: monospace;
-    min-height: 280px;
-    resize: vertical;
+.editor-container {
+    height: 400px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    overflow: hidden;
+    transition: border-color 0.4s ease;
 }
 
 /* Buttons */
@@ -141,12 +184,16 @@ label {
     padding: 8px 16px;
     cursor: pointer;
     border: none;
-    transition: opacity 0.1s;
+    transition: opacity 0.2s, background-color 0.4s ease, color 0.4s ease, transform 0.1s;
+}
+
+.btn:active {
+    transform: scale(0.98);
 }
 
 .btn-primary {
-    background-color: #ffffff;
-    color: #000000;
+    background-color: var(--btn-primary-bg);
+    color: var(--btn-primary-text);
 }
 
 .btn-primary:hover {
@@ -155,20 +202,21 @@ label {
 
 .btn-secondary {
     background-color: transparent;
-    border: 1px solid #333333;
-    color: #ffffff;
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
 }
 
 .btn-secondary:hover {
-    opacity: 0.88;
+    background-color: var(--bg-hover);
 }
 
 /* Cards */
 .card {
-    background-color: #111111;
-    border: 1px solid #222222;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 20px;
+    transition: background-color 0.4s ease, border-color 0.4s ease;
 }
 
 /* Status Badges */
@@ -190,6 +238,16 @@ label {
     color: #ef4444;
     background-color: #2a0f0f;
     border: 1px solid #7f1d1d;
+}
+
+[data-theme="light"] .badge-pass {
+    background-color: #dcfce7;
+    border-color: #86efac;
+}
+
+[data-theme="light"] .badge-fail {
+    background-color: #fee2e2;
+    border-color: #fca5a5;
 }
 
 /* History Grid */
@@ -223,4 +281,10 @@ label {
     justify-content: space-between;
     align-items: flex-end;
     margin-top: 10px;
+}
+
+/* GSAP classes */
+.gsap-fade-up {
+    opacity: 0;
+    transform: translateY(20px);
 }

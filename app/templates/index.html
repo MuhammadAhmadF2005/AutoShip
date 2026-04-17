@@ -1,14 +1,16 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>Dashboard</h1>
-    <div class="card">
+    <h1 class="gsap-item" style="opacity: 0; transform: translateY(20px);">Dashboard</h1>
+    <div class="card gsap-item" style="margin-bottom: 20px; opacity: 0; transform: translateY(20px);">
         <h2 class="title" style="margin-bottom: 20px;">Manual Code Analysis</h2>
         <form id="analyzeForm" action="/analyze" method="post">
-            <label for="code">Python source code</label>
-            <textarea name="code" id="code" class="input-field input-code" spellcheck="false" placeholder="def hello_world():
-    print('Hello World')"></textarea>
-            <div style="margin-top: 20px;">
+            <label>Python source code</label>
+            <input type="hidden" name="code" id="hiddenCodeInput">
+            
+            <div id="editorContainer" class="editor-container" style="margin-bottom: 20px;"></div>
+            
+            <div>
                 <button type="submit" id="submitBtn" class="btn btn-primary">Analyze</button>
             </div>
         </form>
@@ -17,15 +19,49 @@
 
 {% block scripts %}
 <script>
+    // GSAP Entrance Animations
+    gsap.to(".gsap-item", {
+        y: 0,
+        opacity: 1,
+        duration: 0.6,
+        stagger: 0.15,
+        ease: "power3.out"
+    });
+
+    // Monaco Editor initialization
+    let editor;
+    require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.38.0/min/vs' }});
+    require(['vs/editor/editor.main'], function() {
+        const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'vs' : 'vs-dark';
+        editor = monaco.editor.create(document.getElementById('editorContainer'), {
+            value: "def hello_world():\n    print('Hello World')\n",
+            language: 'python',
+            theme: theme,
+            automaticLayout: true,
+            minimap: { enabled: false },
+            fontSize: 14,
+            padding: { top: 16, bottom: 16 }
+        });
+    });
+
+    // dynamically update Monaco Editor on theme switch
+    window.addEventListener('themeChanged', (e) => {
+        if(editor) {
+            monaco.editor.setTheme(e.detail === 'light' ? 'vs' : 'vs-dark');
+        }
+    });
+
     const form = document.getElementById('analyzeForm');
     const submitBtn = document.getElementById('submitBtn');
+    const hiddenCodeInput = document.getElementById('hiddenCodeInput');
 
     form.addEventListener('submit', () => {
+        if (editor) {
+            hiddenCodeInput.value = editor.getValue();
+        }
         submitBtn.textContent = 'Analyzing...';
         submitBtn.style.opacity = '0.7';
         submitBtn.disabled = true;
-        // submit the form programmatically after overriding text
-        form.submit();
     });
 </script>
 {% endblock %}

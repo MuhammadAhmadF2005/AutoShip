@@ -1,0 +1,226 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #000000;
+    color: #ffffff;
+    display: flex;
+    min-height: 100vh;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Layout */
+.sidebar {
+    width: 240px;
+    background-color: #0a0a0a;
+    position: fixed;
+    height: 100vh;
+    left: 0;
+    top: 0;
+    padding: 20px 10px;
+    border-right: 1px solid #222;
+}
+
+.main-content {
+    margin-left: 240px;
+    padding: 40px;
+    flex: 1;
+    background-color: #000000;
+}
+
+/* Sidebar Nav */
+.logo {
+    font-weight: 600;
+    color: #ffffff;
+    font-size: 15px;
+    padding: 10px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nav-link {
+    color: #888888;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    margin-bottom: 4px;
+    font-size: 14px;
+    transition: background-color 0.1s, color 0.1s;
+}
+
+.nav-link:hover, .nav-link.active {
+    color: #ffffff;
+    background-color: #1a1a1a;
+}
+
+.nav-link svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+}
+
+/* Typography */
+h1 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+h2 {
+    font-size: 20px;
+    font-weight: 500;
+    margin-bottom: 16px;
+}
+
+.title {
+    font-weight: 600;
+    font-size: 15px;
+}
+
+.text-secondary {
+    color: #888888;
+    font-size: 14px;
+}
+
+.text-meta {
+    color: #555555;
+    font-size: 12px;
+}
+
+/* Form Elements */
+label {
+    display: block;
+    margin-bottom: 8px;
+    color: #888888;
+    font-size: 14px;
+}
+
+.input-field {
+    width: 100%;
+    background-color: #0a0a0a;
+    border: 1px solid #333333;
+    color: #ffffff;
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.1s;
+}
+
+.input-field:focus {
+    border-color: #666666;
+}
+
+.input-code {
+    font-family: monospace;
+    min-height: 280px;
+    resize: vertical;
+}
+
+/* Buttons */
+.btn {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 6px;
+    padding: 8px 16px;
+    cursor: pointer;
+    border: none;
+    transition: opacity 0.1s;
+}
+
+.btn-primary {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+.btn-primary:hover {
+    opacity: 0.88;
+}
+
+.btn-secondary {
+    background-color: transparent;
+    border: 1px solid #333333;
+    color: #ffffff;
+}
+
+.btn-secondary:hover {
+    opacity: 0.88;
+}
+
+/* Cards */
+.card {
+    background-color: #111111;
+    border: 1px solid #222222;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+/* Status Badges */
+.badge {
+    display: inline-block;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.badge-pass {
+    color: #22c55e;
+    background-color: #0f2a1a;
+    border: 1px solid #166534;
+}
+
+.badge-fail {
+    color: #ef4444;
+    background-color: #2a0f0f;
+    border: 1px solid #7f1d1d;
+}
+
+/* History Grid */
+.history-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+@media (max-width: 900px) {
+    .history-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.history-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 120px;
+}
+
+.history-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.history-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-top: 10px;
+}

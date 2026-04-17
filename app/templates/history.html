@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% set active_page = "history" %}
+
+{% block content %}
+    <h1>History</h1>
+
+    {% if results %}
+        <div class="history-grid">
+            {% for row in results %}
+                <div class="card history-card">
+                    <div class="history-card-header">
+                        <div>
+                            <div class="title" style="margin-bottom: 4px;">Analysis #{{ row.id }}</div>
+                            <div class="text-meta" style="font-family: monospace; color: #666; font-size: 11px;">
+                                {{ row.code_snippet[:80] }}{% if row.code_snippet|length > 80 %}...{% endif %}
+                            </div>
+                        </div>
+                        <div style="text-align: right; margin-left: 10px;">
+                            <div style="font-weight: 600; font-size: 18px; margin-bottom: 6px;">{{ "%.2f"|format(row.pylint_score) }}</div>
+                            {% if row.is_pass %}
+                                <div class="badge badge-pass">Pass</div>
+                            {% else %}
+                                <div class="badge badge-fail">Fail</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="history-card-footer">
+                        <div class="text-secondary">{{ row.timestamp.strftime('%b %d %Y, %H:%M:%S UTC') }}</div>
+                        <div class="text-secondary" style="font-size: 12px;">CC Grade: <strong>{{ row.complexity_rating }}</strong></div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card" style="text-align: center; padding: 40px; color: #888;">
+            No analyses found in history. Go <a href="/" style="color: #fff; text-decoration: underline;">Analyze</a> some code!
+        </div>
+    {% endif %}
+{% endblock %}

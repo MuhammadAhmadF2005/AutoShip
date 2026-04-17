@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Dashboard</h1>
+    <div class="card">
+        <h2 class="title" style="margin-bottom: 20px;">Manual Code Analysis</h2>
+        <form id="analyzeForm" action="/analyze" method="post">
+            <label for="code">Python source code</label>
+            <textarea name="code" id="code" class="input-field input-code" spellcheck="false" placeholder="def hello_world():
+    print('Hello World')"></textarea>
+            <div style="margin-top: 20px;">
+                <button type="submit" id="submitBtn" class="btn btn-primary">Analyze</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const form = document.getElementById('analyzeForm');
+    const submitBtn = document.getElementById('submitBtn');
+
+    form.addEventListener('submit', () => {
+        submitBtn.textContent = 'Analyzing...';
+        submitBtn.style.opacity = '0.7';
+        submitBtn.disabled = true;
+        // submit the form programmatically after overriding text
+        form.submit();
+    });
+</script>
+{% endblock %}

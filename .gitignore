@@ -8,5 +8,5 @@ __pycache__/
 *.pyc
 
 # Database
-autoship.local.db
+*.db
 data/

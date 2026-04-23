@@ -1,11 +1,8 @@
-version: '3.8'
-
 services:
   web:
-    build: .
+    image: moahmadf/autoship:latest
     ports:
       - "8000:8000"
     volumes:
-      - ./data:/app/data
-    environment:
-      - DATABASE_URL=sqlite:////app/data/autoship.db
+      - /home/ubuntu/autoship-data:/app/data
+    restart: always

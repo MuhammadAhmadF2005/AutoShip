@@ -2,74 +2,211 @@
 {% set active_page = "analyze" %}
 
 {% block content %}
-    <h1 class="gsap-item" style="opacity: 0; transform: translateY(20px);">Analysis Results</h1>
+    <a href="/analyze" class="ghost-btn" style="display: inline-flex; align-items: center; gap: 8px; margin-bottom: 24px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        New Analysis
+    </a>
 
-    <div class="card gsap-item" style="margin-bottom: 20px; opacity: 0; transform: translateY(20px);">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
-            <div>
-                <h2 class="title" style="margin-bottom: 8px;">Analysis #{{ result.id }}</h2>
-                <div class="text-meta">{{ result.timestamp.strftime('%b %d %Y, %H:%M:%S UTC') }}</div>
-            </div>
-            {% if result.is_pass %}
-                <div class="badge badge-pass">Pass</div>
-            {% else %}
-                <div class="badge badge-fail">Fail</div>
-            {% endif %}
-        </div>
+    <!-- Score Hero -->
+    <div class="hero-section">
+        {% set score_color = "var(--green)" %}
+        {% if result.pylint_score < 4 %}{% set score_color = "var(--red)" %}
+        {% elif result.pylint_score < 7 %}{% set score_color = "var(--yellow)" %}
+        {% endif %}
         
-        <div style="display: flex; gap: 40px; margin-bottom: 20px;">
-            <div>
-                <div class="text-secondary" style="margin-bottom: 4px;">Pylint Score</div>
-                <div style="font-size: 24px; font-weight: 600; color: var(--text-primary);">{{ "%.2f"|format(result.pylint_score) }} / 10</div>
+        <div class="ring-container">
+            <svg class="ring-svg" viewBox="0 0 110 110">
+                <circle class="ring-bg" cx="55" cy="55" r="50"></circle>
+                <circle class="ring-progress" cx="55" cy="55" r="50" style="stroke: {{ score_color }};" id="scoreRing"></circle>
+            </svg>
+            <div class="score-center">
+                <div class="score-num">{{ "%.1f"|format(result.pylint_score) }}</div>
+                <div class="score-out">out of 10.0</div>
             </div>
-            <div>
-                <div class="text-secondary" style="margin-bottom: 4px;">Max Complexity Grade</div>
-                <div style="font-size: 24px; font-weight: 600; color: var(--text-primary);">{{ result.complexity_rating }}</div>
+        </div>
+
+        <div>
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                <h1 style="margin: 0;">Analysis Complete</h1>
+                {% if result.is_pass %}
+                    <span class="badge badge-pass">Pass</span>
+                {% else %}
+                    <span class="badge badge-fail">Fail</span>
+                {% endif %}
             </div>
+            <div class="text-secondary">Completed at {{ result.timestamp.strftime('%b %d, %Y, %H:%M:%S UTC') }}</div>
         </div>
     </div>
 
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-        <div class="card gsap-item" style="opacity: 0; transform: translateY(20px);">
-            <h2 class="title" style="margin-bottom: 16px;">Pylint Issues</h2>
-            <div style="background-color: var(--bg-input); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; font-family: monospace; font-size: 13px; max-height: 300px; overflow-y: auto;">
-                {% if lint_issues %}
-                    {% for issue in lint_issues %}
-                        <div style="margin-bottom: 4px; color: var(--text-secondary);">{{ issue }}</div>
-                    {% endfor %}
-                {% else %}
-                    <div style="color: var(--text-meta);">No linting issues found.</div>
-                {% endif %}
+    <!-- Metrics Row -->
+    <div class="metrics-row">
+        <div class="metric-card">
+            <div class="text-secondary" style="font-size: 13px; margin-bottom: 8px;">Pylint Issues</div>
+            <div style="font-size: 24px; font-weight: 600;">{{ lint_issues|length }}</div>
+        </div>
+        <div class="metric-card">
+            <div class="text-secondary" style="font-size: 13px; margin-bottom: 8px;">Avg Complexity</div>
+            <div style="font-size: 24px; font-weight: 600;" class="
+                {% if result.complexity_rating in ['A', 'B'] %}text-green
+                {% elif result.complexity_rating == 'C' %}text-yellow
+                {% else %}text-red{% endif %}
+            ">{{ result.complexity_rating }}</div>
+        </div>
+        <div class="metric-card">
+            <div class="text-secondary" style="font-size: 13px; margin-bottom: 8px;">Lines Analyzed</div>
+            <div style="font-size: 24px; font-weight: 600;">{{ lines_analyzed }}</div>
+        </div>
+    </div>
+
+    <!-- Issues -->
+    <h2 style="margin-top: 40px; margin-bottom: 16px;">Linting Issues</h2>
+    {% if not lint_issues %}
+        <div class="metric-card" style="display: flex; align-items: center; gap: 12px; justify-content: center; color: var(--green);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            <span style="font-weight: 500;">No issues found</span>
+        </div>
+    {% else %}
+        {% set errors = [] %}
+        {% set warnings = [] %}
+        {% set conventions = [] %}
+        {% for issue in lint_issues %}
+            {% if " E" in issue or ": E" in issue %}{% set _ = errors.append(issue) %}
+            {% elif " W" in issue or ": W" in issue %}{% set _ = warnings.append(issue) %}
+            {% else %}{% set _ = conventions.append(issue) %}
+            {% endif %}
+        {% endfor %}
+
+        <!-- Errors -->
+        {% if errors %}
+        <div style="border: 1px solid var(--border); border-radius: 8px; margin-bottom: 16px; overflow: hidden; background-color: var(--bg-surface);">
+            <div class="collapsible-header" onclick="toggleSection(this)">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--red);"></div>
+                    Errors <span class="badge badge-neutral">{{ errors|length }}</span>
+                </div>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transform: rotate(180deg); transition: transform 250ms;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </div>
+            <div class="collapsible-content open">
+                {% for err in errors %}
+                <div class="issue-row">
+                    <div style="flex: 1; line-height: 1.5;">{{ err }}</div>
+                </div>
+                {% endfor %}
             </div>
         </div>
+        {% endif %}
 
-        <div class="card gsap-item" style="opacity: 0; transform: translateY(20px);">
-            <h2 class="title" style="margin-bottom: 16px;">Cyclomatic Complexity</h2>
-            <div style="background-color: var(--bg-input); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; font-family: monospace; font-size: 13px; max-height: 300px; overflow-y: auto;">
-                {% if cc_issues %}
+        <!-- Warnings -->
+        {% if warnings %}
+        <div style="border: 1px solid var(--border); border-radius: 8px; margin-bottom: 16px; overflow: hidden; background-color: var(--bg-surface);">
+            <div class="collapsible-header" onclick="toggleSection(this)">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--yellow);"></div>
+                    Warnings <span class="badge badge-neutral">{{ warnings|length }}</span>
+                </div>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transform: rotate(180deg); transition: transform 250ms;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </div>
+            <div class="collapsible-content open">
+                {% for warn in warnings %}
+                <div class="issue-row">
+                    <div style="flex: 1; line-height: 1.5;">{{ warn }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Conventions -->
+        {% if conventions %}
+        <div style="border: 1px solid var(--border); border-radius: 8px; margin-bottom: 16px; overflow: hidden; background-color: var(--bg-surface);">
+            <div class="collapsible-header" onclick="toggleSection(this)">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--accent);"></div>
+                    Convention / Refactor <span class="badge badge-neutral">{{ conventions|length }}</span>
+                </div>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition: transform 250ms;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </div>
+            <div class="collapsible-content">
+                {% for conv in conventions %}
+                <div class="issue-row">
+                    <div style="flex: 1; line-height: 1.5;">{{ conv }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    {% endif %}
+
+    <!-- Complexity -->
+    <h2 style="margin-top: 40px; margin-bottom: 16px;">Cyclomatic Complexity</h2>
+    {% if not cc_issues %}
+        <div class="metric-card" style="color: var(--text-muted); text-align: center; margin-bottom: 40px;">No complexity data generated</div>
+    {% else %}
+        <div style="background-color: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 40px;">
+            <table class="dashboard-table" style="margin-top: 0; margin-bottom: 0;">
+                <thead style="background-color: var(--bg-elevated);">
+                    <tr>
+                        <th style="font-weight: 600;">Block</th>
+                        <th style="font-weight: 600;">Type</th>
+                        <th style="font-weight: 600;">Grade</th>
+                    </tr>
+                </thead>
+                <tbody>
                     {% for cc in cc_issues %}
-                        <div style="margin-bottom: 4px; color: var(--text-secondary);">{{ cc }}</div>
+                    <tr>
+                        {% set parts = cc.split(' - ') %}
+                        {% if parts|length >= 2 %}
+                            {% set grade = parts[-1].strip() %}
+                            {% set info = parts[0].strip() %}
+                            
+                            <td style="font-family: 'Fira Code', monospace;">{{ info }}</td>
+                            <td class="text-muted">Function/Class</td>
+                            <td>
+                                <span class="badge {% if grade in ['A','B'] %}badge-pass{% elif grade == 'C' %}badge-neutral{% else %}badge-fail{% endif %}">{{ grade }}</span>
+                            </td>
+                        {% else %}
+                            <td colspan="3" class="text-muted">{{ cc }}</td>
+                        {% endif %}
+                    </tr>
                     {% endfor %}
-                {% else %}
-                    <div style="color: var(--text-meta);">No complexity data generated.</div>
-                {% endif %}
-            </div>
+                </tbody>
+            </table>
         </div>
-    </div>
+    {% endif %}
 
-    <div class="gsap-item" style="margin-top: 30px; opacity: 0; transform: translateY(20px);">
-        <a href="/" class="btn btn-secondary">← Back to Analyze</a>
-    </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-    gsap.to(".gsap-item", {
-        y: 0,
-        opacity: 1,
-        duration: 0.6,
-        stagger: 0.15,
-        ease: "power3.out"
+    // Animate the ring gauge
+    window.addEventListener('DOMContentLoaded', () => {
+        const ring = document.getElementById('scoreRing');
+        const score = {{ result.pylint_score }};
+        // circumference is 2 * pi * r = 2 * 3.14159 * 50 ≈ 314
+        const circumference = 314;
+        const offset = circumference - (score / 10) * circumference;
+        
+        // Wait a small frame for transition to apply
+        setTimeout(() => {
+            ring.style.strokeDashoffset = offset;
+        }, 50);
+
+        if ("{{ result.id }}" !== "Unsaved" && window.showToast) {
+            setTimeout(() => showToast('Analysis saved to history'), 500);
+        }
     });
+
+    // Toggle collapsible
+    function toggleSection(header) {
+        const content = header.nextElementSibling;
+        const icon = header.querySelector('svg');
+        content.classList.toggle('open');
+        if(content.classList.contains('open')) {
+            icon.style.transform = 'rotate(180deg)';
+        } else {
+            icon.style.transform = 'rotate(0deg)';
+        }
+        icon.style.transition = 'transform 250ms';
+    }
 </script>
 {% endblock %}

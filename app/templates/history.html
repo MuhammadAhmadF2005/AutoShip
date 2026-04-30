@@ -2,50 +2,108 @@
 {% set active_page = "history" %}
 
 {% block content %}
-    <h1 class="gsap-item" style="opacity: 0; transform: translateY(20px);">History</h1>
+    <div class="history-header">
+        <div>
+            <h1>Analysis History</h1>
+            <div class="subtitle" style="display: flex; align-items: center; gap: 8px;">
+                Past analyses stored in database
+                <span class="badge badge-neutral" style="font-size: 11px;">{{ results|length }} total</span>
+            </div>
+        </div>
+        
+        <div class="filter-pills" id="filterPills">
+            <div class="pill active" data-filter="all">All</div>
+            <div class="pill" data-filter="pass">Pass</div>
+            <div class="pill" data-filter="fail">Fail</div>
+        </div>
+    </div>
 
     {% if results %}
-        <div class="history-grid">
+        <div class="history-grid" id="historyGrid">
             {% for row in results %}
-                <div class="card history-card gsap-item" style="opacity: 0; transform: translateY(20px);">
-                    <div class="history-card-header">
-                        <div>
-                            <div class="title" style="margin-bottom: 4px;">Analysis #{{ row.id }}</div>
-                            <div class="text-meta" style="font-family: monospace; font-size: 11px;">
-                                {{ row.code_snippet[:80] }}{% if row.code_snippet|length > 80 %}...{% endif %}
+                <div class="history-card" data-status="{% if row.is_pass %}pass{% else %}fail{% endif %}">
+                    <div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                            <div style="font-weight: 600;">Analysis #{{ row.id }}</div>
+                            
+                            {% set score_color = "var(--green)" %}
+                            {% if row.pylint_score < 4 %}{% set score_color = "var(--red)" %}
+                            {% elif row.pylint_score < 7 %}{% set score_color = "var(--yellow)" %}
+                            {% endif %}
+                            
+                            <div class="badge" style="background-color: transparent; border: 1px solid {{ score_color }}; color: {{ score_color }};">
+                                {{ "%.1f"|format(row.pylint_score) }}
                             </div>
                         </div>
-                        <div style="text-align: right; margin-left: 10px;">
-                            <div style="font-weight: 600; font-size: 18px; margin-bottom: 6px; color: var(--text-primary);">{{ "%.2f"|format(row.pylint_score) }}</div>
-                            {% if row.is_pass %}
-                                <div class="badge badge-pass">Pass</div>
-                            {% else %}
-                                <div class="badge badge-fail">Fail</div>
-                            {% endif %}
+                        
+                        <div class="text-secondary" style="font-size: 13px; margin-bottom: 4px;">
+                            {{ row.timestamp.strftime('%b %d, %Y, %H:%M') }}
+                        </div>
+                        <div class="text-muted" style="font-size: 12px; margin-bottom: 20px;">
+                            Complexity: 
+                            <span class="{% if row.complexity_rating in ['A', 'B'] %}text-green{% elif row.complexity_rating == 'C' %}text-yellow{% else %}text-red{% endif %}" style="font-weight: 500;">
+                                Grade {{ row.complexity_rating }}
+                            </span>
                         </div>
                     </div>
-                    <div class="history-card-footer">
-                        <div class="text-secondary">{{ row.timestamp.strftime('%b %d %Y, %H:%M:%S UTC') }}</div>
-                        <div class="text-secondary" style="font-size: 12px;">CC Grade: <strong>{{ row.complexity_rating }}</strong></div>
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        {% if row.is_pass %}
+                            <span class="badge badge-pass">Pass</span>
+                        {% else %}
+                            <span class="badge badge-fail">Fail</span>
+                        {% endif %}
+                        
+                        <a href="#" class="text-secondary" style="font-size: 13px; font-weight: 500; text-decoration: underline;" onclick="showToast('View details coming soon'); return false;">View Details</a>
                     </div>
                 </div>
             {% endfor %}
         </div>
+        
+        <div id="noResultsMsg" style="display: none; text-align: center; padding: 40px; color: var(--text-muted); background-color: var(--bg-surface); border-radius: 8px; border: 1px solid var(--border);">
+            No analyses match the selected filter.
+        </div>
     {% else %}
-        <div class="card gsap-item" style="text-align: center; padding: 40px; color: var(--text-secondary); opacity: 0; transform: translateY(20px);">
-            No analyses found in history. Go <a href="/" style="color: var(--text-primary); text-decoration: underline;">Analyze</a> some code!
+        <div style="text-align: center; padding: 60px 20px; background-color: var(--bg-surface); border-radius: 8px; border: 1px dashed var(--border); color: var(--text-muted);">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-bottom: 16px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            <div>No history found. Run an analysis to see it here.</div>
         </div>
     {% endif %}
 {% endblock %}
 
 {% block scripts %}
 <script>
-    gsap.to(".gsap-item", {
-        y: 0,
-        opacity: 1,
-        duration: 0.5,
-        stagger: 0.05,
-        ease: "power3.out"
+    const pills = document.querySelectorAll('.pill');
+    const cards = document.querySelectorAll('.history-card');
+    const noResultsMsg = document.getElementById('noResultsMsg');
+    
+    pills.forEach(pill => {
+        pill.addEventListener('click', () => {
+            // Update active state
+            pills.forEach(p => p.classList.remove('active'));
+            pill.classList.add('active');
+            
+            const filter = pill.getAttribute('data-filter');
+            let visibleCount = 0;
+            
+            cards.forEach(card => {
+                const status = card.getAttribute('data-status');
+                if (filter === 'all' || filter === status) {
+                    card.style.display = 'flex';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            if (noResultsMsg) {
+                if (visibleCount === 0) {
+                    noResultsMsg.style.display = 'block';
+                } else {
+                    noResultsMsg.style.display = 'none';
+                }
+            }
+        });
     });
 </script>
 {% endblock %}

@@ -1,0 +1,191 @@
+\documentclass[12pt]{article}
+\usepackage[utf-8]{inputenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{geometry}
+
+\geometry{margin=1in}
+
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    stringstyle=\color{red},
+    breaklines=true,
+    showstringspaces=false
+}
+
+\title{AutoShip: Automated Python Code Quality Analysis System}
+\author{Development Team}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+\newpage
+
+\section{Introduction}
+
+AutoShip is a web-based application designed to automate Python code quality analysis and reporting. The system leverages FastAPI for the backend and integrates with pylint for comprehensive code quality metrics.
+
+\section{Project Overview}
+
+\subsection{Objectives}
+
+\begin{enumerate}
+    \item Provide automated code quality analysis for Python projects
+    \item Track analysis history and trends over time
+    \item Generate detailed reports with actionable insights
+    \item Enable team collaboration through shared dashboards
+    \item Maintain comprehensive audit logs for compliance
+\end{enumerate}
+
+\subsection{Key Features}
+
+\begin{itemize}
+    \item Real-time code quality scoring
+    \item Historical analysis tracking
+    \item Pass/fail assessment
+    \item Trend analysis and visualization
+    \item Database persistence using SQLAlchemy ORM
+    \item Responsive web interface with Jinja2 templating
+    \item RESTful API endpoints
+\end{itemize}
+
+\section{Technology Stack}
+
+\subsection{Backend}
+\begin{itemize}
+    \item \textbf{FastAPI}: Modern Python web framework for building APIs
+    \item \textbf{SQLAlchemy}: SQL toolkit and Object-Relational Mapping (ORM)
+    \item \textbf{Pylint}: Python code quality analysis tool
+    \item \textbf{Uvicorn}: ASGI server for running FastAPI applications
+\end{itemize}
+
+\subsection{Frontend}
+\begin{itemize}
+    \item \textbf{HTML5}: Markup language for web pages
+    \item \textbf{CSS3}: Styling and responsive design
+    \item \textbf{Jinja2}: Template engine for dynamic content rendering
+\end{itemize}
+
+\subsection{Deployment}
+\begin{itemize}
+    \item \textbf{Docker}: Containerization for consistent environments
+    \item \textbf{Docker Compose}: Multi-container orchestration
+\end{itemize}
+
+\section{System Architecture}
+
+\subsection{Directory Structure}
+
+\begin{lstlisting}
+AutoShip/
+├── app/
+│   ├── main.py              # FastAPI application entry point
+│   ├── models.py            # SQLAlchemy ORM models
+│   ├── database.py          # Database configuration
+│   ├── static/              # CSS and client-side assets
+│   └── templates/           # Jinja2 HTML templates
+├── Dockerfile               # Container configuration
+├── docker-compose.yml       # Multi-container setup
+├── requirements.txt         # Python dependencies
+└── report.tex              # This documentation
+\end{lstlisting}
+
+\subsection{Core Components}
+
+\subsubsection{Database Models}
+The system uses SQLAlchemy ORM with the following primary model:
+\begin{itemize}
+    \item \textbf{AnalysisResult}: Stores code analysis results with timestamps, scores, and status flags
+\end{itemize}
+
+\subsubsection{API Endpoints}
+\begin{itemize}
+    \item \texttt{GET /}: Dashboard with statistics and recent analyses
+    \item \texttt{GET /health}: Health check endpoint
+    \item Analysis submission and retrieval endpoints
+\end{itemize}
+
+\subsubsection{Templates}
+\begin{itemize}
+    \item \texttt{base.html}: Base template with common layout
+    \item \texttt{index.html}: Landing page and dashboard
+    \item \texttt{analyze.html}: Code submission interface
+    \item \texttt{results.html}: Detailed analysis results
+    \item \texttt{history.html}: Historical analysis records
+\end{itemize}
+
+\section{Implementation Details}
+
+\subsection{Data Flow}
+
+\begin{enumerate}
+    \item User submits Python code through the web interface
+    \item FastAPI receives the submission and validates input
+    \item Pylint analyzes the code and generates quality score
+    \item Results are persisted to the database via SQLAlchemy ORM
+    \item Analysis history is tracked with timestamps
+    \item Results are rendered and displayed to the user
+\end{enumerate}
+
+\subsection{Key Statistics}
+
+The dashboard calculates and displays:
+\begin{itemize}
+    \item Total number of analyses performed
+    \item Average pylint score across all analyses
+    \item Pass rate (percentage of analyses meeting quality threshold)
+    \item Today's analysis count
+    \item Recent analyses (last 5)
+    \item Score trend data (last 10 analyses)
+\end{itemize}
+
+\section{Development and Deployment}
+
+\subsection{Local Development}
+
+Requirements:
+\begin{itemize}
+    \item Python 3.8 or higher
+    \item FastAPI and dependencies (see requirements.txt)
+    \item A supported database (SQLite, PostgreSQL, etc.)
+\end{itemize}
+
+\subsection{Docker Deployment}
+
+The project includes Docker configuration for containerized deployment:
+\begin{itemize}
+    \item \texttt{Dockerfile}: Defines the application container
+    \item \texttt{docker-compose.yml}: Orchestrates services
+\end{itemize}
+
+Run with:
+\begin{lstlisting}
+docker-compose up --build
+\end{lstlisting}
+
+\section{Future Enhancements}
+
+\begin{enumerate}
+    \item Integration with additional code quality tools (flake8, black, mypy)
+    \item Advanced filtering and search capabilities
+    \item Export functionality (PDF, CSV, JSON)
+    \item User authentication and role-based access control
+    \item CI/CD pipeline integration
+    \item Real-time notifications for quality regressions
+    \item Performance optimization and caching layer
+\end{enumerate}
+
+\section{Conclusion}
+
+AutoShip provides a comprehensive solution for automated Python code quality analysis. By combining modern Python frameworks with robust ORM practices, the system offers scalability, maintainability, and extensibility for team-based development workflows.
+
+\end{document}
